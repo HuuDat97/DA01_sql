@@ -88,15 +88,71 @@ from Sales
 group by product_id
 
 ---ex8
-
+select customer_id
+from Customer 
+group by customer_id
+having count(product_key) >=
+(select count(*) as so_dem 
+from Product) 
 
 ---ex9
-
+with cte as (
+select *
+from Employees 
+where salary <30000
+)
+select a.employee_id
+from cte as a
+join cte as b
+on a.employee_id =b.manager_id
 
 ---ex10
-
+WITH cte AS(
+SELECT company_id, 
+title, 
+description, 
+COUNT(*)
+FROM job_listings
+GROUP BY company_id, title, description
+HAVING COUNT(*)>=2
+) SELECT COUNT(*) FROM cte
 
 ---ex11
-
+with cte as (
+select s.title,       
+avg(r.rating)  
+from MovieRating as r 
+join Movies as s on r.movie_id=s.movie_id 
+where extract(month from r.created_at) = 2
+group by s.title
+order by avg(r.rating) desc, s.title
+limit 1
+), cte2 as (
+    select u.name,
+count(m.rating)
+from MovieRating as m
+join Users as u on m.user_id=u.user_id
+group by u.name
+order by u.name 
+limit 1
+)
+select cte2.name as results      
+from cte2
+union select cte.title from cte 
 
 ---ex12
+with cte as (
+select requester_id as user_id,
+accepter_id AS friend_id
+from RequestAccepted 
+Union all 
+select accepter_id as user_id,
+requester_id AS friend_id
+from RequestAccepted
+)
+select user_id as id,
+count(friend_id) as num
+from cte
+group by user_id
+order by count(friend_id) desc
+limit 1
